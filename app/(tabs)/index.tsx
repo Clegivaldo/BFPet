@@ -1,98 +1,214 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { PostCard } from '@/components/posts/PostCard';
+import { useAuth } from '@/contexts/AuthContext';
+import { postService } from '@/services/postService';
+import { IPost } from '@/types/post.types';
+import { showToast } from '@/utils/helpers';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    FlatList,
+    RefreshControl,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function FeedScreen() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const [posts, setPosts] = useState<IPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+  const [liking, setLiking] = useState<number | null>(null);
 
-export default function HomeScreen() {
+  useEffect(() => {
+    loadPosts();
+  }, []);
+
+  const loadPosts = async () => {
+    try {
+      const allPosts = await postService.getAllPosts();
+      setPosts(allPosts);
+
+      // Carregar quais posts o usuário já curtiu
+      if (user && allPosts.length > 0) {
+        const liked = new Set<number>();
+        for (const post of allPosts) {
+          const isLiked = await postService.isPostLikedByUser(post.id, user.id);
+          if (isLiked) {
+            liked.add(post.id);
+          }
+        }
+        setLikedPosts(liked);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar posts:', error);
+      showToast('error', 'Erro', 'Não foi possível carregar os posts');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadPosts();
+    setRefreshing(false);
+  };
+
+  const handleLike = async (postId: number) => {
+    if (!user || liking === postId) return;
+
+    try {
+      setLiking(postId);
+      const newLiked = new Set(likedPosts);
+
+      // Atualizar estado local
+      if (newLiked.has(postId)) {
+        newLiked.delete(postId);
+      } else {
+        newLiked.add(postId);
+      }
+      setLikedPosts(newLiked);
+
+      // Atualizar no banco
+      await postService.toggleLike(postId, user.id);
+
+      // Recarregar posts para atualizar contadores
+      const updatedPosts = await postService.getAllPosts();
+      setPosts(updatedPosts);
+
+      showToast('success', 'Sucesso', newLiked.has(postId) ? 'Post curtido!' : 'Curtida removida');
+    } catch (error) {
+      console.error('Erro ao curtir post:', error);
+      showToast('error', 'Erro', 'Não foi possível curtir o post');
+      // Reverter estado em caso de erro
+      setLikedPosts(likedPosts);
+    } finally {
+      setLiking(null);
+    }
+  };
+
+  const handleComment = (postId: number) => {
+    // Navegar para tela de comentários
+    router.push({
+      pathname: '/comments',
+      params: { postId: String(postId) },
+    });
+  };
+
+  const handleShare = (postId: number) => {
+    // Após compartilhar, recarregar posts para atualizar contadores
+    loadPosts();
+  };
+
+  const renderEmptyState = () => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyIcon}>🐾</Text>
+      <Text style={styles.emptyTitle}>Nenhum post encontrado</Text>
+      <Text style={styles.emptySubtitle}>Seja o primeiro a postar!</Text>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FF6B9D" />
+        <Text style={styles.loadingText}>Carregando posts...</Text>
+      </View>
+    );
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>🐾 BFpet Feed</Text>
+      </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <FlatList
+        data={posts}
+        renderItem={({ item }) => (
+          <PostCard
+            post={item}
+            userId={user!.id}
+            onLike={handleLike}
+            onComment={handleComment}
+            onShare={handleShare}
+            isLiked={likedPosts.has(item.id)}
+            isLiking={liking === item.id}
+          />
+        )}
+        keyExtractor={(item) => item.id.toString()}
+        ListEmptyComponent={renderEmptyState}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#FF6B9D"
+            colors={['#FF6B9D']}
+          />
+        }
+        scrollIndicatorInsets={{ right: 1 }}
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: '#fafafa',
   },
-  stepContainer: {
-    gap: 8,
+
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#333',
+  },
+
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: '#666',
+  },
+
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+
+  emptyIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#999',
   },
 });

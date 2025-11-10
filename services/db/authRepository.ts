@@ -18,15 +18,35 @@ export class AuthRepository {
   async createUser(email: string, password: string, name: string): Promise<any> {
     try {
       const database = db.getDb();
-      const result = await database.runAsync(
-        `INSERT INTO users (email, password, name) VALUES (?, ?, ?)`,
-        [email, password, name]
-      );
+      const now = new Date().toISOString();
+      
+      try {
+        // Tentar com created_at (nova versão)
+        const result = await database.runAsync(
+          `INSERT INTO users (email, password, name, created_at) 
+           VALUES (?, ?, ?, ?)`,
+          [email, password, name, now]
+        );
 
-      if (result.lastInsertRowId) {
-        return this.getUserById(result.lastInsertRowId);
+        if (result.lastInsertRowId) {
+          return this.getUserById(result.lastInsertRowId);
+        }
+        return null;
+      } catch (error: any) {
+        // Se falhar (coluna não existe), tenta sem created_at
+        console.warn('⚠️ Coluna created_at não encontrada, inserindo sem ela:', error.message);
+        
+        const result = await database.runAsync(
+          `INSERT INTO users (email, password, name) 
+           VALUES (?, ?, ?)`,
+          [email, password, name]
+        );
+
+        if (result.lastInsertRowId) {
+          return this.getUserById(result.lastInsertRowId);
+        }
+        return null;
       }
-      return null;
     } catch (error) {
       console.error('Error creating user:', error);
       throw error;
@@ -36,8 +56,9 @@ export class AuthRepository {
   async getUserById(id: number): Promise<any> {
     try {
       const database = db.getDb();
+      // Usar SELECT * para pegar todas as colunas disponíveis
       const user = await database.getFirstAsync<any>(
-        'SELECT id, email, name, avatar_url, bio, created_at FROM users WHERE id = ?',
+        'SELECT * FROM users WHERE id = ?',
         [id]
       );
       return user || null;
@@ -90,12 +111,12 @@ export class AuthRepository {
     }
   }
 
-  async updateUserProfile(userId: number, name: string, bio?: string): Promise<any> {
+  async updateUserProfile(userId: number, name: string, bio?: string, avatarUrl?: string): Promise<any> {
     try {
       const database = db.getDb();
       await database.runAsync(
-        'UPDATE users SET name = ?, bio = ? WHERE id = ?',
-        [name, bio || '', userId]
+        'UPDATE users SET name = ?, bio = ?, avatar_url = ? WHERE id = ?',
+        [name, bio || '', avatarUrl || '', userId]
       );
       return this.getUserById(userId);
     } catch (error) {

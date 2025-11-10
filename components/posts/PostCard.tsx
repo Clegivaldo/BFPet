@@ -1,4 +1,5 @@
 import { ShareButton } from '@/components/share/ShareButton';
+import { ScaleButton } from '@/components/ui/ScaleButton';
 import { IPost } from '@/types/post.types';
 import { formatDate, formatPostType, truncateText } from '@/utils/formatters';
 import React, { useState } from 'react';
@@ -7,7 +8,6 @@ import {
     Image,
     StyleSheet,
     Text,
-    TouchableOpacity,
     View
 } from 'react-native';
 
@@ -137,11 +137,11 @@ export function PostCard({
 
       {/* Action Buttons */}
       <View style={styles.actions}>
-        <TouchableOpacity
+        <ScaleButton
           style={[styles.actionButton, isLiked && styles.actionButtonActive]}
           onPress={handleLike}
           disabled={isLiking}
-          activeOpacity={0.7}
+          scaleValue={0.93}
         >
           {isLiking ? (
             <ActivityIndicator size="small" color="#FF6B9D" />
@@ -153,16 +153,16 @@ export function PostCard({
               </Text>
             </>
           )}
-        </TouchableOpacity>
+        </ScaleButton>
 
-        <TouchableOpacity
+        <ScaleButton
           style={styles.actionButton}
           onPress={handleComment}
-          activeOpacity={0.7}
+          scaleValue={0.93}
         >
           <Text style={styles.actionIcon}>💬</Text>
           <Text style={styles.actionText}>Comentar</Text>
-        </TouchableOpacity>
+        </ScaleButton>
 
         <View style={styles.actionButton}>
           <ShareButton

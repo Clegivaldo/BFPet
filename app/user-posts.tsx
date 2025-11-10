@@ -1,29 +1,30 @@
 import { PostCard } from '@/components/posts/PostCard';
-import { PostCardSkeleton } from '@/components/posts/PostCardSkeleton';
 import { FadeInCard } from '@/components/ui/FadeInCard';
 import { useAuth } from '@/contexts/AuthContext';
-import { postService } from '@/services/postService';
+import { profileService } from '@/services/profileService';
 import { IPost } from '@/types/post.types';
 import { showToast } from '@/utils/helpers';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
+    ActivityIndicator,
     FlatList,
     RefreshControl,
     StyleSheet,
     Text,
-    View
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function FeedScreen() {
+export default function UserPostsScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
   const [posts, setPosts] = useState<IPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
-  const [liking, setLiking] = useState<number | null>(null);
 
   useEffect(() => {
     loadPosts();
@@ -31,20 +32,11 @@ export default function FeedScreen() {
 
   const loadPosts = async () => {
     try {
-      const allPosts = await postService.getAllPosts();
-      setPosts(allPosts);
+      setLoading(true);
+      if (!authUser) return;
 
-      // Carregar quais posts o usuário já curtiu
-      if (user && allPosts.length > 0) {
-        const liked = new Set<number>();
-        for (const post of allPosts) {
-          const isLiked = await postService.isPostLikedByUser(post.id, user.id);
-          if (isLiked) {
-            liked.add(post.id);
-          }
-        }
-        setLikedPosts(liked);
-      }
+      const userPosts = await profileService.getUserPosts(authUser.id);
+      setPosts(userPosts);
     } catch (error) {
       console.error('Erro ao carregar posts:', error);
       showToast('error', 'Erro', 'Não foi possível carregar os posts');
@@ -60,40 +52,10 @@ export default function FeedScreen() {
   };
 
   const handleLike = async (postId: number) => {
-    if (!user || liking === postId) return;
-
-    try {
-      setLiking(postId);
-      const newLiked = new Set(likedPosts);
-
-      // Atualizar estado local
-      if (newLiked.has(postId)) {
-        newLiked.delete(postId);
-      } else {
-        newLiked.add(postId);
-      }
-      setLikedPosts(newLiked);
-
-      // Atualizar no banco
-      await postService.toggleLike(postId, user.id);
-
-      // Recarregar posts para atualizar contadores
-      const updatedPosts = await postService.getAllPosts();
-      setPosts(updatedPosts);
-
-      showToast('success', 'Sucesso', newLiked.has(postId) ? 'Post curtido!' : 'Curtida removida');
-    } catch (error) {
-      console.error('Erro ao curtir post:', error);
-      showToast('error', 'Erro', 'Não foi possível curtir o post');
-      // Reverter estado em caso de erro
-      setLikedPosts(likedPosts);
-    } finally {
-      setLiking(null);
-    }
+    // Implementar after postService
   };
 
   const handleComment = (postId: number) => {
-    // Navegar para tela de comentários
     router.push({
       pathname: '/comments',
       params: { postId: String(postId) },
@@ -101,15 +63,14 @@ export default function FeedScreen() {
   };
 
   const handleShare = (postId: number) => {
-    // Após compartilhar, recarregar posts para atualizar contadores
     loadPosts();
   };
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyIcon}>🐾</Text>
-      <Text style={styles.emptyTitle}>Nenhum post encontrado</Text>
-      <Text style={styles.emptySubtitle}>Seja o primeiro a postar!</Text>
+      <Ionicons name="document-outline" size={64} color="#ccc" />
+      <Text style={styles.emptyTitle}>Nenhum post ainda</Text>
+      <Text style={styles.emptySubtitle}>Crie seu primeiro post!</Text>
     </View>
   );
 
@@ -117,14 +78,16 @@ export default function FeedScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>🐾 BFpet Feed</Text>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="chevron-back" size={28} color="#FF6B9D" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Meus Posts</Text>
+          <View style={{ width: 40 }} />
         </View>
-        <FlatList
-          data={[1, 2, 3, 4]}
-          renderItem={() => <PostCardSkeleton />}
-          keyExtractor={(_, i) => `skeleton-${i}`}
-          scrollEnabled={false}
-        />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FF6B9D" />
+          <Text style={styles.loadingText}>Carregando posts...</Text>
+        </View>
       </SafeAreaView>
     );
   }
@@ -132,7 +95,11 @@ export default function FeedScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>🐾 BFpet Feed</Text>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="chevron-back" size={28} color="#FF6B9D" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Meus Posts</Text>
+        <View style={{ width: 40 }} />
       </View>
 
       <FlatList
@@ -141,12 +108,11 @@ export default function FeedScreen() {
           <FadeInCard delay={index * 50} duration={400}>
             <PostCard
               post={item}
-              userId={user!.id}
+              userId={authUser!.id}
               onLike={handleLike}
               onComment={handleComment}
               onShare={handleShare}
               isLiked={likedPosts.has(item.id)}
-              isLiking={liking === item.id}
             />
           </FadeInCard>
         )}
@@ -173,6 +139,9 @@ const styles = StyleSheet.create({
   },
 
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: '#fff',
@@ -180,10 +149,17 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f0f0f0',
   },
 
+  backButton: {
+    padding: 8,
+    marginLeft: -8,
+  },
+
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
     color: '#333',
+    flex: 1,
+    textAlign: 'center',
   },
 
   loadingContainer: {
@@ -205,16 +181,12 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
   },
 
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-
   emptyTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 8,
+    marginTop: 12,
+    marginBottom: 4,
   },
 
   emptySubtitle: {

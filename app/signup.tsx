@@ -8,13 +8,13 @@ import React, { useState } from 'react';
 import {
     KeyboardAvoidingView,
     Platform,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ZodError } from 'zod';
 
 export default function SignupScreen() {
@@ -41,12 +41,16 @@ export default function SignupScreen() {
         confirmPassword,
       });
 
+      console.log('[Signup] 📝 Enviando:', { name: formData.name, email: formData.email });
+
       // Fazer signup
       const success = await signup(
         formData.name,
         formData.email,
         formData.password
       );
+
+      console.log('[Signup] Resultado:', success);
 
       if (success) {
         showToast({
@@ -62,6 +66,7 @@ export default function SignupScreen() {
         });
       }
     } catch (error) {
+      console.error('[Signup] Erro:', error);
       if (error instanceof ZodError) {
         const newErrors: Record<string, string> = {};
         error.errors.forEach((err) => {
@@ -81,8 +86,7 @@ export default function SignupScreen() {
   };
 
   const handleNavigateToLogin = () => {
-    // @ts-ignore - route exists at runtime
-    router.push('/login');
+    router.replace('/login');
   };
 
   const isFormValid =

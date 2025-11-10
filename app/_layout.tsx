@@ -46,6 +46,16 @@ function RootLayoutContent() {
         <Stack.Screen 
           name="(tabs)"
           redirect={!isAuthenticated}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="create-post"
+          redirect={!isAuthenticated}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="edit-profile"
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="comments"

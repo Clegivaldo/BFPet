@@ -19,11 +19,70 @@ export class Database {
     try {
       this.db = await SQLite.openDatabaseAsync(DATABASE_NAME);
       console.log('Database initialized successfully');
+      
+      // Verificar se banco está corrompido e fazer reset se necessário
+      await this.validateAndFixDatabase();
+      
       await this.createTables();
       await this.seedInitialData();
     } catch (error) {
       console.error('Failed to initialize database:', error);
       throw error;
+    }
+  }
+
+  private async validateAndFixDatabase(): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    try {
+      // Tentar contar usuários - se falhar, banco está corrompido
+      await this.db.getFirstAsync<any>('SELECT COUNT(*) as count FROM users');
+      
+      // ✅ Tabela existe, agora verificar colunas faltantes
+      await this.addMissingColumns();
+    } catch (error: any) {
+      console.warn('⚠️ Banco corrompido detectado, recriando...');
+      
+      try {
+        // Dropar todas as tabelas
+        const tables = ['shares', 'comments', 'likes', 'posts', 'current_user', 'users'];
+        for (const table of tables) {
+          try {
+            await this.db.execAsync(`DROP TABLE IF EXISTS ${table};`);
+            console.log(`🗑️ Tabela ${table} deletada`);
+          } catch (err) {
+            // Silenciosamente ignora
+          }
+        }
+        console.log('✅ Banco resetado com sucesso');
+      } catch (err) {
+        console.warn('⚠️ Erro ao resetar banco:', err);
+      }
+    }
+  }
+
+  private async addMissingColumns(): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    const columnsToAdd = [
+      { table: 'users', column: 'avatar_url', definition: 'TEXT' },
+      { table: 'users', column: 'bio', definition: 'TEXT' },
+      { table: 'users', column: 'created_at', definition: 'DATETIME DEFAULT CURRENT_TIMESTAMP' },
+    ];
+
+    for (const { table, column, definition } of columnsToAdd) {
+      try {
+        // Tentar adicionar coluna
+        await this.db.execAsync(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition};`);
+        console.log(`✅ Coluna ${column} adicionada à tabela ${table}`);
+      } catch (error: any) {
+        // Se já existe, tudo bem
+        if (error.message.includes('duplicate column') || error.message.includes('already exists')) {
+          console.log(`✅ Coluna ${column} já existe em ${table}`);
+        } else {
+          console.warn(`⚠️ Erro ao adicionar ${column}:`, error.message);
+        }
+      }
     }
   }
 
@@ -39,7 +98,7 @@ export class Database {
           name TEXT NOT NULL,
           avatar_url TEXT,
           bio TEXT,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          created_at DATETIME NOT NULL
         );
       `,
       `
@@ -127,18 +186,25 @@ export class Database {
         'SELECT COUNT(*) as count FROM users'
       );
 
-      if (result.count === 0) {
-        // Inserir usuário de teste
+      if (result && result.count === 0) {
+        // Inserir usuário de teste com timestamp explícito
+        const now = new Date().toISOString();
+        console.log(`📝 Inserindo usuário de teste com timestamp: ${now}`);
+        
         await this.db.runAsync(
-          `INSERT INTO users (email, password, name, bio) 
-           VALUES (?, ?, ?, ?)`,
-          ['teste@bfpet.com', 'senha123', 'Usuário Teste', 'Amante de pets 🐾']
+          `INSERT INTO users (id, email, password, name, bio, created_at) 
+           VALUES (1, ?, ?, ?, ?, ?)`,
+          ['teste@bfpet.com', 'senha123', 'Usuário Teste', 'Amante de pets 🐾', now]
         );
 
-        console.log('Initial data seeded successfully');
+        console.log('✅ Initial data seeded successfully');
+      } else if (result) {
+        console.log(`ℹ️  Usuários já existem no banco: ${result.count}`);
       }
-    } catch (error) {
-      console.error('Error seeding data:', error);
+    } catch (error: any) {
+      console.error('❌ Error seeding data:', error);
+      console.error('📍 Stack:', error.stack);
+      // NÃO lança erro - deixa app continuar
     }
   }
 

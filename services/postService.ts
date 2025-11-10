@@ -81,6 +81,36 @@ export class PostService {
     }
   }
 
+  async likePost(postId: number, userId: number): Promise<boolean> {
+    try {
+      const isLiked = await this.isPostLikedByUser(postId, userId);
+      if (!isLiked) {
+        await likeRepository.toggleLike(postId, userId);
+        await postRepository.updatePostCounters(postId);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error liking post:', error);
+      throw error;
+    }
+  }
+
+  async unlikePost(postId: number, userId: number): Promise<boolean> {
+    try {
+      const isLiked = await this.isPostLikedByUser(postId, userId);
+      if (isLiked) {
+        await likeRepository.toggleLike(postId, userId);
+        await postRepository.updatePostCounters(postId);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error unliking post:', error);
+      throw error;
+    }
+  }
+
   async getLikesCount(postId: number): Promise<number> {
     try {
       return await likeRepository.getLikesCount(postId);

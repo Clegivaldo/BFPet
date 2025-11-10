@@ -33,7 +33,7 @@ export class AuthService {
           name: user.name,
           avatarUrl: user.avatar_url,
           bio: user.bio,
-          createdAt: user.created_at,
+          createdAt: user.createdAt,
         },
         token,
       };
@@ -80,7 +80,7 @@ export class AuthService {
           name: user.name,
           avatarUrl: user.avatar_url,
           bio: user.bio,
-          createdAt: user.created_at,
+          createdAt: user.createdAt,
         },
       };
     } catch (error: any) {
@@ -101,7 +101,7 @@ export class AuthService {
             name: user.name,
             avatarUrl: user.avatar_url,
             bio: user.bio,
-            createdAt: user.created_at,
+            createdAt: user.createdAt,
           }
         : null;
     } catch (error) {
@@ -133,7 +133,7 @@ export class AuthService {
             name: user.name,
             avatarUrl: user.avatar_url,
             bio: user.bio,
-            createdAt: user.created_at,
+            createdAt: user.createdAt,
           }
         : null;
     } catch (error) {

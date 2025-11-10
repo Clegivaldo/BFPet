@@ -66,18 +66,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   ): Promise<boolean> => {
     try {
       setIsLoading(true);
+      console.log('[AuthContext] 📝 Criando conta...', { email, name });
+      
       const response = await authService.createAccount(name, email, password);
+      console.log('[AuthContext] 📝 Resposta:', response);
 
       if (response.success && response.user) {
+        console.log('[AuthContext] ✅ Conta criada com sucesso');
         setUser(response.user);
         // Auto-login after signup
         await authService.login(email, password);
         return true;
       }
 
+      console.error('[AuthContext] ❌ Erro na criação:', response.message);
       return false;
-    } catch (error) {
-      console.error('Signup error:', error);
+    } catch (error: any) {
+      console.error('[AuthContext] ❌ Signup error:', error);
+      console.error('[AuthContext] 📍 Stack:', error.stack);
       return false;
     } finally {
       setIsLoading(false);

@@ -1,9 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Link, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { HapticTab } from '@/components/haptic-tab';
+import CustomTabBar from '@/components/CustomTabBar';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -17,8 +16,11 @@ export default function TabLayout() {
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
           headerShown: false,
-          tabBarButton: HapticTab,
-        }}>
+          tabBarShowLabel: false,
+          tabBarStyle: { height: 70, paddingTop: 6 },
+        }}
+        tabBar={(props) => <CustomTabBar {...(props as any)} />}
+      >
         <Tabs.Screen
           name="index"
           options={{
@@ -33,24 +35,16 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
           }}
         />
-        <Tabs.Screen
-          name="profile"
-          options={{
-            title: 'Perfil',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
-          }}
-        />
+          <Tabs.Screen
+            name="profile"
+            options={{
+              title: 'Perfil',
+              tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+            }}
+          />
       </Tabs>
 
-      {/* Floating Action Button - Criar Post */}
-      <Link href={"/create-post" as any} asChild>
-        <TouchableOpacity
-          style={styles.fab}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="add" size={32} color="#fff" />
-        </TouchableOpacity>
-      </Link>
+      {/* FAB moved into CustomTabBar */}
     </View>
   );
 }
@@ -58,11 +52,11 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
-    bottom: 80,
-    right: 16,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    bottom: 18,
+    alignSelf: 'center',
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: '#FF6B9D',
     justifyContent: 'center',
     alignItems: 'center',

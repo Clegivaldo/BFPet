@@ -1,6 +1,6 @@
-export type PostType = 'adoption' | 'found' | 'lost';
-
 import type { IComment } from './comment.types';
+
+export type PostType = 'adoption' | 'found' | 'lost';
 
 export interface IPost {
   id: number;

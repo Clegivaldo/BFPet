@@ -170,6 +170,43 @@ export class PostService {
     }
   }
 
+  async updatePost(postId: number, userId: number, data: Partial<ICreatePost & { imageUrl?: string }>): Promise<IPost | null> {
+    try {
+      const existing = await this.getPostById(postId);
+      if (!existing) throw new Error('Post not found');
+      if (existing.userId !== userId) throw new Error('Unauthorized');
+
+      const updated = await postRepository.updatePost(
+        postId,
+        data.title ?? existing.title,
+        data.description ?? existing.description,
+        data.imageUrl ?? existing.imageUrl,
+        data.latitude ?? existing.latitude,
+        data.longitude ?? existing.longitude,
+        data.locationName ?? existing.locationName
+      );
+
+      return updated ? this.formatPost(updated) : null;
+    } catch (error) {
+      console.error('Error updating post:', error);
+      throw error;
+    }
+  }
+
+  async deletePost(postId: number, userId: number): Promise<boolean> {
+    try {
+      const existing = await this.getPostById(postId);
+      if (!existing) throw new Error('Post not found');
+      if (existing.userId !== userId) throw new Error('Unauthorized');
+
+      const result = await postRepository.deletePost(postId);
+      return result;
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      throw error;
+    }
+  }
+
   private formatPost(post: any): IPost {
     return {
       id: post.id,

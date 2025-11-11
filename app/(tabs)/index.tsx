@@ -6,7 +6,7 @@ import { postService } from '@/services/postService';
 import { IPost } from '@/types/post.types';
 import { showToast } from '@/utils/helpers';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     FlatList,
     RefreshControl,
@@ -25,11 +25,7 @@ export default function FeedScreen() {
   const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
   const [liking, setLiking] = useState<number | null>(null);
 
-  useEffect(() => {
-    loadPosts();
-  }, []);
-
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     try {
       const allPosts = await postService.getAllPosts();
       setPosts(allPosts);
@@ -51,7 +47,11 @@ export default function FeedScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    loadPosts();
+  }, [loadPosts]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -105,6 +105,23 @@ export default function FeedScreen() {
     loadPosts();
   };
 
+  const handleEdit = (postId: number) => {
+    // Navegar para tela de edição
+  router.push({ pathname: '/edit-post' as any, params: { postId: String(postId) } });
+  };
+
+  const handleDelete = async (postId: number) => {
+    if (!user) return;
+    try {
+      await postService.deletePost(postId, user.id);
+      await loadPosts();
+      showToast('success', 'Sucesso', 'Publicação excluída');
+    } catch (error) {
+      console.error('Erro ao excluir post:', error);
+      showToast('error', 'Erro', 'Não foi possível excluir a publicação');
+    }
+  };
+
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyIcon}>🐾</Text>
@@ -145,6 +162,8 @@ export default function FeedScreen() {
               onLike={handleLike}
               onComment={handleComment}
               onShare={handleShare}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
               isLiked={likedPosts.has(item.id)}
               isLiking={liking === item.id}
             />

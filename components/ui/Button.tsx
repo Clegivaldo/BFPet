@@ -1,11 +1,11 @@
 import React from 'react';
 import {
-    ActivityIndicator,
-    StyleSheet,
-    Text,
-    TextStyle,
-    TouchableOpacity,
-    ViewStyle,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  ViewStyle,
+  TextStyle,
 } from 'react-native';
 
 interface ButtonProps {
@@ -13,10 +13,9 @@ interface ButtonProps {
   onPress: () => void;
   loading?: boolean;
   disabled?: boolean;
-  variant?: 'primary' | 'secondary' | 'outline';
-  size?: 'small' | 'medium' | 'large';
   style?: ViewStyle;
   textStyle?: TextStyle;
+  size?: 'small' | 'medium' | 'large';
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -24,42 +23,28 @@ export const Button: React.FC<ButtonProps> = ({
   onPress,
   loading = false,
   disabled = false,
-  variant = 'primary',
-  size = 'medium',
   style,
   textStyle,
+  size = 'medium',
 }) => {
-  const isDisabled = disabled || loading;
+  const buttonSizeStyle = styles[size];
+  const textSizeStyle = styles[`text_${size}`];
 
   return (
     <TouchableOpacity
+      onPress={onPress}
+      disabled={disabled || loading}
       style={[
         styles.button,
-        styles[`${variant}Button`],
-        styles[`${size}Button`],
-        isDisabled && styles.disabled,
+        buttonSizeStyle,
+        (disabled || loading) && styles.disabled,
         style,
       ]}
-      onPress={onPress}
-      disabled={isDisabled}
-      activeOpacity={0.7}
     >
       {loading ? (
-        <ActivityIndicator
-          color={variant === 'outline' ? '#FF6B9D' : '#fff'}
-          size={size === 'small' ? 'small' : 'large'}
-        />
+        <ActivityIndicator color="#fff" />
       ) : (
-        <Text
-          style={[
-            styles.text,
-            styles[`${variant}Text`],
-            styles[`${size}Text`],
-            textStyle,
-          ]}
-        >
-          {title}
-        </Text>
+        <Text style={[styles.text, textSizeStyle, textStyle]}>{title}</Text>
       )}
     </TouchableOpacity>
   );
@@ -67,59 +52,38 @@ export const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  // Variants
-  primaryButton: {
     backgroundColor: '#FF6B9D',
-  },
-  secondaryButton: {
-    backgroundColor: '#868E96',
-  },
-  outlineButton: {
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    borderColor: '#FF6B9D',
-  },
-  // Sizes
-  smallButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  mediumButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-  },
-  largeButton: {
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-  },
-  // Text styles
-  text: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  primaryText: {
-    color: '#fff',
-  },
-  secondaryText: {
-    color: '#fff',
-  },
-  outlineText: {
-    color: '#FF6B9D',
-  },
-  smallText: {
-    fontSize: 12,
-  },
-  mediumText: {
-    fontSize: 14,
-  },
-  largeText: {
-    fontSize: 18,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
   },
   disabled: {
-    opacity: 0.6,
+    backgroundColor: '#FFC2D9',
+  },
+  text: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  small: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  medium: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+  },
+  large: {
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+  },
+  text_small: {
+    fontSize: 12,
+  },
+  text_medium: {
+    fontSize: 16,
+  },
+  text_large: {
+    fontSize: 18,
   },
 });

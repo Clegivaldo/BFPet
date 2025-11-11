@@ -2,12 +2,18 @@ import { ShareButton } from '@/components/share/ShareButton';
 import { ScaleButton } from '@/components/ui/ScaleButton';
 import { IPost } from '@/types/post.types';
 import { formatDate, formatPostType, truncateText } from '@/utils/formatters';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import React, { useState } from 'react';
 import {
+    ActionSheetIOS,
     ActivityIndicator,
+    GestureResponderEvent,
     Image,
+    Modal,
+    Platform,
     StyleSheet,
     Text,
+    TouchableOpacity,
     View
 } from 'react-native';
 
@@ -17,6 +23,8 @@ interface PostCardProps {
   onLike?: (postId: number) => void;
   onComment?: (postId: number) => void;
   onShare?: (postId: number) => void;
+  onEdit?: (postId: number) => void;
+  onDelete?: (postId: number) => void;
   isLiked?: boolean;
   isLiking?: boolean;
 }
@@ -27,6 +35,8 @@ export function PostCard({
   onLike,
   onComment,
   onShare,
+  onEdit,
+  onDelete,
   isLiked = false,
   isLiking = false,
 }: PostCardProps) {
@@ -47,6 +57,38 @@ export function PostCard({
   const handleShare = () => {
     if (onShare) {
       onShare(post.id);
+    }
+  };
+
+  const handleEdit = () => {
+    if (onEdit) onEdit(post.id);
+  };
+
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const handleDelete = () => {
+    setMenuVisible(false);
+    if (!onDelete) return;
+    onDelete(post.id);
+  };
+
+  const handleMenu = (e?: GestureResponderEvent) => {
+    // Show ActionSheet on iOS, Alert on Android
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['Cancelar', 'Editar', 'Excluir'],
+          destructiveButtonIndex: 2,
+          cancelButtonIndex: 0,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) handleEdit();
+          if (buttonIndex === 2) handleDelete();
+        }
+      );
+    } else {
+      // show custom modal on Android
+      setMenuVisible(true);
     }
   };
 
@@ -77,8 +119,16 @@ export function PostCard({
         </View>
 
         {/* Post Type Badge */}
-        <View style={[styles.postTypeBadge, styles[`badge_${post.type}`]]}>
-          <Text style={styles.postTypeText}>{formatPostType(post.type)}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={[styles.postTypeBadge, styles[`badge_${post.type}`]]}>
+            <Text style={styles.postTypeText}>{formatPostType(post.type)}</Text>
+          </View>
+          {/* Menu do autor (ícone) */}
+          {post.userId === userId && (
+            <TouchableOpacity onPress={handleMenu} style={styles.ownerMenu}>
+              <MaterialIcons name="more-vert" size={22} color="#666" />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -173,6 +223,29 @@ export function PostCard({
           />
         </View>
       </View>
+      {/* Android custom menu modal */}
+      {menuVisible && (
+        <Modal
+          transparent
+          animationType="fade"
+          visible={menuVisible}
+          onRequestClose={() => setMenuVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <TouchableOpacity onPress={() => { setMenuVisible(false); handleEdit(); }} style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>Editar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { setMenuVisible(false); handleDelete(); }} style={[styles.modalButton, { borderTopWidth: 1, borderTopColor: '#eee' }]}> 
+                <Text style={[styles.modalButtonText, { color: '#d9534f' }]}>Excluir</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setMenuVisible(false)} style={[styles.modalButton, { borderTopWidth: 1, borderTopColor: '#eee' }]}> 
+                <Text style={styles.modalButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 }
@@ -372,5 +445,41 @@ const styles = StyleSheet.create({
 
   actionTextActive: {
     color: '#FF6B9D',
+  },
+  ownerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  ownerActionText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1971c2',
+    marginLeft: 8,
+  },
+  ownerMenu: {
+    marginLeft: 8,
+    padding: 6,
+    borderRadius: 6,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 12,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  modalButton: {
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    fontSize: 16,
+    color: '#1971c2',
+    fontWeight: '600',
   },
 });

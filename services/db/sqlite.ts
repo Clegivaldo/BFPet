@@ -1,4 +1,5 @@
 import * as SQLite from 'expo-sqlite';
+import { emitDbRecovery } from './dbEvents';
 
 const DATABASE_NAME = 'bfpet.db';
 
@@ -35,28 +36,45 @@ export class Database {
     if (!this.db) throw new Error('Database not initialized');
 
     try {
-      // Tentar contar usuários - se falhar, banco está corrompido
-      await this.db.getFirstAsync<any>('SELECT COUNT(*) as count FROM users');
-      
+      // Verifica se a tabela 'users' existe. Se não existir, vamos criar o schema.
+      const tableExists = await this.db.getFirstAsync<any>(
+        `SELECT name FROM sqlite_master WHERE type='table' AND name='users'`
+      );
+
+      if (!tableExists) {
+        const when = new Date().toISOString();
+        console.warn('⚠️ Tabela users não encontrada — criando tabelas...');
+        console.info(`[DB_RECOVERY] Iniciando createTables() em ${when}`);
+        // Cria tabelas (sem dropar nada) para recuperar schema esperado
+        await this.createTables();
+        console.info(`[DB_RECOVERY] createTables() finalizado em ${new Date().toISOString()}`);
+        try {
+          emitDbRecovery({ when, reason: 'users_table_missing' });
+        } catch (e) {
+          // ignore
+        }
+        return;
+      }
+
       // ✅ Tabela existe, agora verificar colunas faltantes
       await this.addMissingColumns();
     } catch (error: any) {
-      console.warn('⚠️ Banco corrompido detectado, recriando...');
-      
+      // Em vez de dropar tabelas (o que apaga sessão/current_user), tentamos
+      // garantir as tabelas e colunas necessárias. Só em casos muito severos
+      // deve-se forçar um reset manualmente via Debug/cleanDatabase.
+      const when = new Date().toISOString();
+      console.warn('⚠️ Erro ao validar esquema do banco, tentando garantir as tabelas:', error?.message || error);
+      console.info(`[DB_RECOVERY] Tentativa de garantir tabelas iniciada em ${when}`);
       try {
-        // Dropar todas as tabelas
-        const tables = ['shares', 'comments', 'likes', 'posts', 'current_user', 'users'];
-        for (const table of tables) {
-          try {
-            await this.db.execAsync(`DROP TABLE IF EXISTS ${table};`);
-            console.log(`🗑️ Tabela ${table} deletada`);
-          } catch (err) {
-            // Silenciosamente ignora
-          }
+        await this.createTables();
+        console.info(`[DB_RECOVERY] Tentativa de garantir tabelas finalizada em ${new Date().toISOString()}`);
+        try {
+          emitDbRecovery({ when, reason: String(error?.message || 'unknown_error') });
+        } catch (e) {
+          // ignore
         }
-        console.log('✅ Banco resetado com sucesso');
       } catch (err) {
-        console.warn('⚠️ Erro ao resetar banco:', err);
+        console.warn('⚠️ Falha ao recriar tabelas automaticamente:', err);
       }
     }
   }
@@ -219,6 +237,46 @@ export class Database {
     if (this.db) {
       await this.db.closeAsync();
       this.db = null;
+    }
+  }
+
+  /**
+   * Retorna uma instância válida do database; tenta reabrir se o handle atual
+   * estiver inválido (ex.: após closeAsync ou reset externo).
+   */
+  async getDbAsync(): Promise<SQLite.SQLiteDatabase> {
+    if (!this.db) {
+      // Abrir novamente
+      this.db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+      // Garantir schema mínimo
+      try {
+        await this.createTables();
+      } catch (e) {
+        console.warn('Erro ao recriar tabelas durante getDbAsync:', e);
+      }
+      return this.db;
+    }
+
+    // Testar conexão rapidamente
+    try {
+      // Usar uma query leve para validar o handle
+      // @ts-ignore - método fornecido pelo wrapper expo-sqlite async
+      await this.db.getFirstAsync('SELECT 1 as ok');
+      return this.db;
+    } catch (error) {
+      console.warn('DB handle inválido detectado, reabrindo database:', error);
+      try {
+        await this.db.closeAsync();
+      } catch (e) {
+        // ignore
+      }
+      this.db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+      try {
+        await this.createTables();
+      } catch (e) {
+        console.warn('Erro ao recriar tabelas após reabrir DB:', e);
+      }
+      return this.db;
     }
   }
 }

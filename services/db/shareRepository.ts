@@ -3,7 +3,7 @@ import { db } from './sqlite';
 export class ShareRepository {
   async recordShare(postId: number, userId: number): Promise<any> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const result = await database.runAsync(
         'INSERT INTO shares (post_id, user_id) VALUES (?, ?)',
         [postId, userId]
@@ -18,7 +18,7 @@ export class ShareRepository {
 
   async getSharesCount(postId: number): Promise<number> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const result = await database.getFirstAsync<any>(
         'SELECT COUNT(*) as count FROM shares WHERE post_id = ?',
         [postId]
@@ -32,7 +32,7 @@ export class ShareRepository {
 
   async getSharesByPost(postId: number): Promise<any[]> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const shares = await database.getAllAsync<any>(
         `SELECT s.*, u.name as user_name FROM shares s
          LEFT JOIN users u ON s.user_id = u.id

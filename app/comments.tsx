@@ -6,7 +6,7 @@ import { commentService } from '@/services/commentService';
 import { postService } from '@/services/postService';
 import { IComment } from '@/types/comment.types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     KeyboardAvoidingView,
     Platform,
@@ -32,16 +32,7 @@ export default function CommentsScreen() {
   const [isDeletingId, setIsDeletingId] = useState<number | null>(null);
   const [postTitle, setPostTitle] = useState('');
 
-  useEffect(() => {
-    if (!postId) {
-      router.back();
-      return;
-    }
-    loadComments();
-    loadPostInfo();
-  }, [postId]);
-
-  const loadPostInfo = async () => {
+  const loadPostInfo = useCallback(async () => {
     try {
       if (!postId) return;
       const post = await postService.getPostById(postId);
@@ -51,9 +42,9 @@ export default function CommentsScreen() {
     } catch (error) {
       console.error('[CommentsScreen] Erro ao carregar post:', error);
     }
-  };
+  }, [postId]);
 
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     try {
       if (!postId) return;
       setIsLoading(true);
@@ -68,7 +59,7 @@ export default function CommentsScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [postId]);
 
   const handleRefresh = async () => {
     try {
@@ -79,9 +70,28 @@ export default function CommentsScreen() {
     }
   };
 
+  useEffect(() => {
+    if (!postId) {
+      router.back();
+      return;
+    }
+    loadComments();
+    loadPostInfo();
+  }, [postId, loadComments, loadPostInfo, router]);
+
   const handleAddComment = async (text: string) => {
     try {
-      if (!postId || !user) return;
+      if (!postId) return;
+
+      if (!user) {
+        // Sessão inválida — informar o usuário e redirecionar para login sem resetar DB
+        showToast({
+          message: 'Sessão inválida. Faça login novamente.',
+          type: 'error',
+        });
+        router.push('/login');
+        return;
+      }
 
       setIsSubmitting(true);
       const newComment = await commentService.addComment(postId, user.id, text);
@@ -106,7 +116,11 @@ export default function CommentsScreen() {
 
   const handleDeleteComment = async (commentId: number) => {
     try {
-      if (!user) return;
+      if (!user) {
+        showToast({ message: 'Sessão inválida. Faça login novamente.', type: 'error' });
+        router.push('/login');
+        return;
+      }
 
       setIsDeletingId(commentId);
       await commentService.deleteComment(commentId, user.id);

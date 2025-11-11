@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-env node */
 
 /**
  * Script para resetar o banco de dados SQLite
@@ -12,10 +13,10 @@ const os = require('os');
 // Possíveis locais do banco de dados
 const possiblePaths = [
   // Caminho padrão do bfpet.db na raiz do projeto
-  path.join(__dirname, '../bfpet.db'),
+  path.join(process.cwd(), 'bfpet.db'),
   
   // Caminho no node_modules
-  path.join(__dirname, '../node_modules/expo-sqlite/build/NativeDatabase.db'),
+  path.join(process.cwd(), 'node_modules/expo-sqlite/build/NativeDatabase.db'),
   
   // Caminho no home do usuário (Android emulator)
   path.join(os.homedir(), '.android/bfpet.db'),

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-env node */
 
 /**
  * 🧪 Script de Teste - BFpet App
@@ -62,7 +63,7 @@ const tests = [
 // Verificar arquivos
 console.log('\n📋 Verificando Arquivos:\n');
 tests.forEach((test, index) => {
-  const filePath = path.join(__dirname, test.file);
+  const filePath = path.join(process.cwd(), test.file);
   const exists = fs.existsSync(filePath);
   const status = exists ? '✅' : '❌';
   console.log(`${status} ${index + 1}. ${test.name}`);

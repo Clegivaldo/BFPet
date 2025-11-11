@@ -1,7 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/services/db/sqlite';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
     Alert,
     ScrollView,
@@ -20,25 +20,8 @@ import {
 export default function DebugScreen() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const router = useRouter();
-  const [debugInfo, setDebugInfo] = useState<any>({});
 
-  useEffect(() => {
-    const loadDebugInfo = async () => {
-      try {
-        // Informações do auth
-        setDebugInfo({
-          user: user,
-          isAuthenticated: isAuthenticated,
-          isLoading: isLoading,
-          timestamp: new Date().toLocaleTimeString(),
-        });
-      } catch (error) {
-        console.error('Debug error:', error);
-      }
-    };
-
-    loadDebugInfo();
-  }, [user, isAuthenticated, isLoading]);
+  // Debug info is read directly from useAuth() in the render below.
 
   const handleClearDatabase = async () => {
     Alert.alert(
@@ -180,10 +163,10 @@ export default function DebugScreen() {
           <Text style={styles.sectionTitle}>📋 Instruções</Text>
           <View style={styles.instructionBox}>
             <Text style={styles.instructionText}>
-              1. Se "Is Authenticated" = true mas você vê Signup, há um bug no redirect
+              1. Se Is Authenticated = true mas você vê Signup, há um bug no redirect
             </Text>
             <Text style={styles.instructionText}>
-              2. Clique "Limpar Banco de Dados" para fazer reset
+              2. Clique em Limpar Banco de Dados para fazer reset
             </Text>
             <Text style={styles.instructionText}>
               3. Use os botões de navegação para testar rotas

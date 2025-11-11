@@ -74,8 +74,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (response.success && response.user) {
         console.log('[AuthContext] ✅ Conta criada com sucesso');
         setUser(response.user);
-        // Auto-login after signup
-        await authService.login(email, password);
         return true;
       }
 
@@ -96,7 +94,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(null);
     } catch (error) {
       console.error('Logout error:', error);
-      throw error;
     }
   };
 

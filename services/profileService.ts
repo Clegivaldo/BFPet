@@ -9,7 +9,7 @@ export class ProfileService {
    */
   async getUserProfile(userId: number): Promise<IUser | null> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const user = await database.getFirstAsync<any>(
         'SELECT id, email, name, avatar_url as avatarUrl, bio, created_at as createdAt FROM users WHERE id = ?',
         [userId]
@@ -29,7 +29,7 @@ export class ProfileService {
     data: { name?: string; bio?: string; avatarUrl?: string }
   ): Promise<IUser> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
 
       // Validar dados
       if (data.name && data.name.trim().length < 2) {

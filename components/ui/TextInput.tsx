@@ -1,51 +1,35 @@
 import React from 'react';
 import {
-    TextInput as RNTextInput,
-    TextInputProps as RNTextInputProps,
-    StyleSheet,
-    Text,
-    View,
-    ViewStyle,
+  View,
+  Text,
+  TextInput as RNTextInput,
+  StyleSheet,
+  TextInputProps as RNTextInputProps,
 } from 'react-native';
 
 interface TextInputProps extends RNTextInputProps {
-  label?: string;
+  label: string;
   error?: string;
-  containerStyle?: ViewStyle;
-  secureTextEntry?: boolean;
 }
 
-export const TextInput = React.forwardRef<RNTextInput, TextInputProps>(
-  (
-    {
-      label,
-      error,
-      containerStyle,
-      placeholderTextColor = '#999',
-      ...props
-    },
-    ref
-  ) => {
-    return (
-      <View style={[styles.container, containerStyle]}>
-        {label && <Text style={styles.label}>{label}</Text>}
-        <RNTextInput
-          ref={ref}
-          style={[
-            styles.input,
-            error && styles.inputError,
-            props.editable === false && styles.inputDisabled,
-          ]}
-          placeholderTextColor={placeholderTextColor}
-          {...props}
-        />
-        {error && <Text style={styles.errorText}>{error}</Text>}
-      </View>
-    );
-  }
-);
-
-TextInput.displayName = 'TextInput';
+export const TextInput: React.FC<TextInputProps> = ({
+  label,
+  error,
+  style,
+  ...props
+}) => {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.label}>{label}</Text>
+      <RNTextInput
+        style={[styles.input, error ? styles.inputError : null, style]}
+        placeholderTextColor="#999"
+        {...props}
+      />
+      {error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -53,11 +37,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
     color: '#333',
+    marginBottom: 8,
+    fontWeight: '600',
   },
   input: {
+    backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 8,
@@ -65,19 +50,13 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
     color: '#333',
-    backgroundColor: '#fff',
   },
   inputError: {
-    borderColor: '#FF6B6B',
-    backgroundColor: '#fff5f5',
-  },
-  inputDisabled: {
-    backgroundColor: '#f5f5f5',
-    color: '#999',
+    borderColor: '#e53935',
   },
   errorText: {
-    color: '#FF6B6B',
+    color: '#e53935',
     fontSize: 12,
-    marginTop: 6,
+    marginTop: 4,
   },
 });

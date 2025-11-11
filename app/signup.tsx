@@ -86,15 +86,16 @@ export default function SignupScreen() {
   };
 
   const handleNavigateToLogin = () => {
+    // Substitui a rota atual para evitar empilhar telas e garantir
+    // comportamento consistente do botão "voltar".
     router.replace('/login');
   };
 
   const isFormValid =
-    name.trim() &&
-    email.trim() &&
-    password &&
-    confirmPassword &&
-    !Object.keys(errors).length;
+    name.trim() !== '' &&
+    email.trim() !== '' &&
+    password !== '' &&
+    confirmPassword !== '';
 
   return (
     <SafeAreaView style={styles.safeArea}>

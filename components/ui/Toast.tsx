@@ -1,26 +1,11 @@
-import { Alert } from 'react-native';
+// Usando console.warn como um placeholder para a funcionalidade de Toast
+// para evitar que a aplicação quebre devido à importação ausente.
 
 interface ToastProps {
   message: string;
   type?: 'success' | 'error' | 'warning' | 'info';
-  duration?: number;
 }
 
-let toastTimeout: ReturnType<typeof setTimeout> | null = null;
-
-export const showToast = (props: ToastProps) => {
-  const { message, type = 'info', duration = 3000 } = props;
-
-  if (toastTimeout) clearTimeout(toastTimeout);
-
-  Alert.alert(
-    type === 'error' ? '❌ Erro' : type === 'success' ? '✅ Sucesso' : '⚠️ Aviso',
-    message,
-    [{ text: 'OK', onPress: () => {} }],
-    { cancelable: true }
-  );
-
-  toastTimeout = setTimeout(() => {
-    toastTimeout = null;
-  }, duration);
+export const showToast = ({ message, type = 'info' }: ToastProps) => {
+  console.warn(`[Toast:${type}] ${message}`);
 };

@@ -3,12 +3,10 @@ import {
     Animated,
     Easing,
     StyleSheet,
-    useWindowDimensions,
     View,
 } from 'react-native';
 
 export function PostCardSkeleton() {
-  const { width } = useWindowDimensions();
   const shimmerAnim = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {

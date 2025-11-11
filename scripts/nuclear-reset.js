@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-env node */
 
 /**
  * 🔥 NUCLEAR RESET - Deleta tudo e força recriação
@@ -23,7 +24,7 @@ try {
 // 2. Apagar banco de dados
 console.log('2️⃣ Deletando banco de dados antigo...');
 const dbPaths = [
-  path.join(__dirname, '../bfpet.db'),
+  path.join(process.cwd(), 'bfpet.db'),
   path.join(process.env.HOME || process.env.USERPROFILE, '.android/bfpet.db'),
   path.join(process.env.HOME || process.env.USERPROFILE, 'Documents/bfpet.db'),
 ];

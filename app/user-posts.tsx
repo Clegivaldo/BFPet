@@ -6,7 +6,7 @@ import { IPost } from '@/types/post.types';
 import { showToast } from '@/utils/helpers';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
@@ -24,13 +24,9 @@ export default function UserPostsScreen() {
   const [posts, setPosts] = useState<IPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+  // Não precisamos rastrear likedPosts localmente aqui por enquanto
 
-  useEffect(() => {
-    loadPosts();
-  }, []);
-
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     try {
       setLoading(true);
       if (!authUser) return;
@@ -43,7 +39,11 @@ export default function UserPostsScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [authUser]);
+
+  useEffect(() => {
+    loadPosts();
+  }, [loadPosts]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -112,7 +112,7 @@ export default function UserPostsScreen() {
               onLike={handleLike}
               onComment={handleComment}
               onShare={handleShare}
-              isLiked={likedPosts.has(item.id)}
+              isLiked={false}
             />
           </FadeInCard>
         )}

@@ -13,7 +13,7 @@ export class PostRepository {
     locationName: string
   ): Promise<any> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const result = await database.runAsync(
         `INSERT INTO posts (user_id, title, description, type, image_url, latitude, longitude, location_name)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -32,7 +32,7 @@ export class PostRepository {
 
   async getPostById(id: number): Promise<any> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const post = await database.getFirstAsync<any>(
         `SELECT p.*, u.name as user_name, u.avatar_url as user_avatar_url
          FROM posts p
@@ -49,7 +49,7 @@ export class PostRepository {
 
   async getAllPosts(limit: number = 20, offset: number = 0): Promise<IPost[]> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const posts = await database.getAllAsync<any>(
         `SELECT p.*, u.name as user_name, u.avatar_url as user_avatar_url
          FROM posts p
@@ -67,7 +67,7 @@ export class PostRepository {
 
   async getPostsByUser(userId: number): Promise<IPost[]> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const posts = await database.getAllAsync<any>(
         `SELECT p.*, u.name as user_name, u.avatar_url as user_avatar_url
          FROM posts p
@@ -85,7 +85,7 @@ export class PostRepository {
 
   async updatePostCounters(postId: number): Promise<void> {
     try {
-      const database = db.getDb();
+  const database = await db.getDbAsync();
 
       const likesResult = await database.getFirstAsync<any>(
         'SELECT COUNT(*) as count FROM likes WHERE post_id = ?',
@@ -119,7 +119,7 @@ export class PostRepository {
 
   async deletePost(postId: number): Promise<boolean> {
     try {
-      const database = db.getDb();
+  const database = await db.getDbAsync();
 
       // Delete related data
       await database.runAsync('DELETE FROM likes WHERE post_id = ?', [postId]);
@@ -132,6 +132,30 @@ export class PostRepository {
       return true;
     } catch (error) {
       console.error('Error deleting post:', error);
+      throw error;
+    }
+  }
+
+  async updatePost(
+    postId: number,
+    title: string,
+    description: string,
+    imageUrl: string,
+    latitude: number,
+    longitude: number,
+    locationName: string
+  ): Promise<any> {
+    try {
+      const database = await db.getDbAsync();
+
+      await database.runAsync(
+        `UPDATE posts SET title = ?, description = ?, image_url = ?, latitude = ?, longitude = ?, location_name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+        [title, description, imageUrl, latitude, longitude, locationName, postId]
+      );
+
+      return this.getPostById(postId);
+    } catch (error) {
+      console.error('Error updating post:', error);
       throw error;
     }
   }

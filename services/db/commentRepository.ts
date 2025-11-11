@@ -4,7 +4,7 @@ import { db } from './sqlite';
 export class CommentRepository {
   async addComment(postId: number, userId: number, text: string): Promise<any> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const result = await database.runAsync(
         'INSERT INTO comments (post_id, user_id, text) VALUES (?, ?, ?)',
         [postId, userId, text]
@@ -22,7 +22,7 @@ export class CommentRepository {
 
   async getCommentById(id: number): Promise<any> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const comment = await database.getFirstAsync<any>(
         `SELECT c.*, u.name as user_name, u.avatar_url as user_avatar_url
          FROM comments c
@@ -39,7 +39,7 @@ export class CommentRepository {
 
   async getCommentsByPost(postId: number): Promise<IComment[]> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const comments = await database.getAllAsync<any>(
         `SELECT c.*, u.name as user_name, u.avatar_url as user_avatar_url
          FROM comments c
@@ -57,7 +57,7 @@ export class CommentRepository {
 
   async getCommentsCount(postId: number): Promise<number> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const result = await database.getFirstAsync<any>(
         'SELECT COUNT(*) as count FROM comments WHERE post_id = ?',
         [postId]
@@ -71,8 +71,8 @@ export class CommentRepository {
 
   async deleteComment(commentId: number): Promise<boolean> {
     try {
-      const database = db.getDb();
-      await database.runAsync('DELETE FROM comments WHERE id = ?', [commentId]);
+  const database = await db.getDbAsync();
+  await database.runAsync('DELETE FROM comments WHERE id = ?', [commentId]);
       return true;
     } catch (error) {
       console.error('Error deleting comment:', error);

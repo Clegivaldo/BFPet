@@ -1,4 +1,6 @@
 import { commentRepository } from '@/services/db/commentRepository';
+import { userRepository } from '@/services/db/userRepository';
+import { postService } from '@/services/postService';
 import { IComment } from '@/types/comment.types';
 
 export class CommentService {
@@ -17,6 +19,18 @@ export class CommentService {
 
       if (text.trim().length > 500) {
         throw new Error('Comentário não pode ter mais de 500 caracteres');
+      }
+
+      // Valida se o post existe
+      const post = await postService.getPostById(postId);
+      if (!post) {
+        throw new Error('Post não encontrado');
+      }
+
+      // Valida se o usuário existe (sessão válida)
+      const user = await userRepository.getUserById(userId);
+      if (!user) {
+        throw new Error('Usuário inválido. Faça login novamente.');
       }
 
       const comment = await commentRepository.addComment(postId, userId, text.trim());

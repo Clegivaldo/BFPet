@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react';
 import {
     Animated,
     Easing,
-    StyleSheet,
     ViewProps,
 } from 'react-native';
 
@@ -58,4 +57,4 @@ export function FadeInCard({
   );
 }
 
-const styles = StyleSheet.create({});
+// styles intentionally empty

@@ -3,7 +3,7 @@ import { db } from './sqlite';
 export class AuthRepository {
   async getUserByEmail(email: string): Promise<any> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const user = await database.getFirstAsync<any>(
         'SELECT * FROM users WHERE email = ?',
         [email]
@@ -17,7 +17,7 @@ export class AuthRepository {
 
   async createUser(email: string, password: string, name: string): Promise<any> {
     try {
-      const database = db.getDb();
+  const database = await db.getDbAsync();
       const now = new Date().toISOString();
       
       try {
@@ -55,7 +55,7 @@ export class AuthRepository {
 
   async getUserById(id: number): Promise<any> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       // Usar SELECT * para pegar todas as colunas disponíveis
       const user = await database.getFirstAsync<any>(
         'SELECT * FROM users WHERE id = ?',
@@ -70,7 +70,7 @@ export class AuthRepository {
 
   async setCurrentUser(userId: number, token: string): Promise<void> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       await database.runAsync(
         'DELETE FROM current_user WHERE id = 1'
       );
@@ -86,7 +86,7 @@ export class AuthRepository {
 
   async getCurrentUser(): Promise<any> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const current = await database.getFirstAsync<any>(
         'SELECT user_id FROM current_user WHERE id = 1'
       );
@@ -103,8 +103,8 @@ export class AuthRepository {
 
   async logout(): Promise<void> {
     try {
-      const database = db.getDb();
-      await database.runAsync('DELETE FROM current_user WHERE id = 1');
+  const database = await db.getDbAsync();
+  await database.runAsync('DELETE FROM current_user WHERE id = 1');
     } catch (error) {
       console.error('Error logging out:', error);
       throw error;
@@ -113,7 +113,7 @@ export class AuthRepository {
 
   async updateUserProfile(userId: number, name: string, bio?: string, avatarUrl?: string): Promise<any> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       await database.runAsync(
         'UPDATE users SET name = ?, bio = ?, avatar_url = ? WHERE id = ?',
         [name, bio || '', avatarUrl || '', userId]

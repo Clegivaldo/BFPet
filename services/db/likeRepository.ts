@@ -3,7 +3,7 @@ import { db } from './sqlite';
 export class LikeRepository {
   async toggleLike(postId: number, userId: number): Promise<boolean> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
 
       const existingLike = await database.getFirstAsync<any>(
         'SELECT id FROM likes WHERE post_id = ? AND user_id = ?',
@@ -33,7 +33,7 @@ export class LikeRepository {
 
   async getLikesCount(postId: number): Promise<number> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const result = await database.getFirstAsync<any>(
         'SELECT COUNT(*) as count FROM likes WHERE post_id = ?',
         [postId]
@@ -47,7 +47,7 @@ export class LikeRepository {
 
   async isPostLikedByUser(postId: number, userId: number): Promise<boolean> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const like = await database.getFirstAsync<any>(
         'SELECT id FROM likes WHERE post_id = ? AND user_id = ?',
         [postId, userId]
@@ -61,7 +61,7 @@ export class LikeRepository {
 
   async getLikesByPost(postId: number): Promise<any[]> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const likes = await database.getAllAsync<any>(
         `SELECT l.*, u.name as user_name FROM likes l
          LEFT JOIN users u ON l.user_id = u.id

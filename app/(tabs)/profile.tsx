@@ -25,17 +25,10 @@ export default function ProfileScreen() {
   const [stats, setStats] = useState({ postsCount: 0, likesCount: 0, sharesCount: 0 });
   const [loading, setLoading] = useState(true);
 
-  // Recarregar dados quando a página ganha foco
-  useFocusEffect(
-    useCallback(() => {
-      loadProfile();
-    }, [authUser?.id])
-  );
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       setLoading(true);
-      if (!authUser) return;
+      if (!authUser?.id) return;
 
       const profile = await profileService.getUserProfile(authUser.id);
       const profileStats = await profileService.getUserStats(authUser.id);
@@ -47,7 +40,14 @@ export default function ProfileScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [authUser?.id]);
+
+  // Recarregar dados quando a página ganha foco
+  useFocusEffect(
+    useCallback(() => {
+      loadProfile();
+    }, [loadProfile])
+  );
 
   const handleEditProfile = () => {
     router.push('../edit-profile');

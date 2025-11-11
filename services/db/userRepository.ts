@@ -7,7 +7,7 @@ export class UserRepository {
    */
   async getUserById(id: number): Promise<IUser | null> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const user = await database.getFirstAsync<any>(
         'SELECT id, email, name, avatar_url as avatarUrl, bio, created_at as createdAt FROM users WHERE id = ?',
         [id]
@@ -24,7 +24,7 @@ export class UserRepository {
    */
   async getUserByEmail(email: string): Promise<IUser | null> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const user = await database.getFirstAsync<any>(
         'SELECT id, email, name, avatar_url as avatarUrl, bio, created_at as createdAt FROM users WHERE email = ?',
         [email]
@@ -44,7 +44,7 @@ export class UserRepository {
     data: { name?: string; bio?: string; avatarUrl?: string }
   ): Promise<IUser | null> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
 
       // Construir dinâmicamente o UPDATE
       const updateFields: string[] = [];
@@ -88,7 +88,7 @@ export class UserRepository {
    */
   async getAllUsers(limit: number = 50, offset: number = 0): Promise<IUser[]> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const users = await database.getAllAsync<any>(
         'SELECT id, email, name, avatar_url as avatarUrl, bio, created_at as createdAt FROM users LIMIT ? OFFSET ?',
         [limit, offset]
@@ -105,7 +105,7 @@ export class UserRepository {
    */
   async searchUsersByName(query: string): Promise<IUser[]> {
     try {
-      const database = db.getDb();
+      const database = await db.getDbAsync();
       const users = await database.getAllAsync<any>(
         `SELECT id, email, name, avatar_url as avatarUrl, bio, created_at as createdAt 
          FROM users 

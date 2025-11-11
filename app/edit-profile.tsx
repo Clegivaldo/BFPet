@@ -26,7 +26,6 @@ export default function EditProfileScreen() {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -216,7 +215,7 @@ export default function EditProfileScreen() {
           <View style={styles.tipsContainer}>
             <Ionicons name="information-circle" size={16} color="#FF6B9D" />
             <Text style={styles.tipText}>
-              Clique em "Câmera" para tirar uma foto ou "Galeria" para escolher uma imagem. Deixe em branco para usar a inicial do seu nome.
+              Clique em Câmera para tirar uma foto ou use a Galeria para escolher uma imagem. Deixe em branco para usar a inicial do seu nome.
             </Text>
           </View>
 

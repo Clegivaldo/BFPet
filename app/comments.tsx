@@ -180,7 +180,7 @@ export default function CommentsScreen() {
           <CommentsList
             comments={comments}
             onDelete={handleDeleteComment}
-            currentUserId={user.id}
+            currentUserId={user?.id || 0}
             isLoading={isLoading}
             isDeletingId={isDeletingId}
             onRefresh={handleRefresh}

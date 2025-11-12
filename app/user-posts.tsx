@@ -108,7 +108,7 @@ export default function UserPostsScreen() {
           <FadeInCard delay={index * 50} duration={400}>
             <PostCard
               post={item}
-              userId={authUser!.id}
+              userId={authUser?.id || 0}
               onLike={handleLike}
               onComment={handleComment}
               onShare={handleShare}

@@ -19,6 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Initialize database and check for existing session
   useEffect(() => {
@@ -89,11 +90,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const logout = async (): Promise<void> => {
+    if (isLoggingOut) {
+      console.log('[AuthContext] 🚪 Logout já em andamento, ignorando...');
+      return;
+    }
+
     try {
+      setIsLoggingOut(true);
+      console.log('[AuthContext] 🚪 Fazendo logout...');
       await authService.logout();
+      console.log('[AuthContext] ✅ Logout realizado com sucesso');
       setUser(null);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('[AuthContext] ❌ Logout error:', error);
+      // Mesmo com erro, setar user como null para evitar estado inconsistente
+      setUser(null);
+      throw error;
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 

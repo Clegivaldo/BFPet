@@ -2,15 +2,21 @@ import { db } from './sqlite';
 
 export class ShareRepository {
   async recordShare(postId: number, userId: number): Promise<any> {
+    const database = await db.getDbAsync();
+
     try {
-      const database = await db.getDbAsync();
+      await database.execAsync('BEGIN TRANSACTION;');
+
       const result = await database.runAsync(
         'INSERT INTO shares (post_id, user_id) VALUES (?, ?)',
         [postId, userId]
       );
 
+      await database.execAsync('COMMIT;');
+
       return result.lastInsertRowId ? { id: result.lastInsertRowId } : null;
     } catch (error) {
+      await database.execAsync('ROLLBACK;');
       console.error('Error recording share:', error);
       throw error;
     }

@@ -12,22 +12,18 @@ export class PostRepository {
     longitude: number,
     locationName: string
   ): Promise<any> {
-    try {
-      const database = await db.getDbAsync();
-      const result = await database.runAsync(
-        `INSERT INTO posts (user_id, title, description, type, image_url, latitude, longitude, location_name)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [userId, title, description, type, imageUrl, latitude, longitude, locationName]
-      );
+    const database = await db.getDbAsync();
+    
+    const result = await database.runAsync(
+      `INSERT INTO posts (user_id, title, description, type, image_url, latitude, longitude, location_name)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [userId, title, description, type, imageUrl, latitude, longitude, locationName]
+    );
 
-      if (result.lastInsertRowId) {
-        return this.getPostById(result.lastInsertRowId);
-      }
-      return null;
-    } catch (error) {
-      console.error('Error creating post:', error);
-      throw error;
+    if (result.lastInsertRowId) {
+      return this.getPostById(result.lastInsertRowId);
     }
+    return null;
   }
 
   async getPostById(id: number): Promise<any> {
@@ -118,8 +114,11 @@ export class PostRepository {
   }
 
   async deletePost(postId: number): Promise<boolean> {
+    const database = await db.getDbAsync();
+
     try {
-  const database = await db.getDbAsync();
+      // Usar transação para garantir atomicidade
+      await database.execAsync('BEGIN TRANSACTION;');
 
       // Delete related data
       await database.runAsync('DELETE FROM likes WHERE post_id = ?', [postId]);
@@ -129,8 +128,10 @@ export class PostRepository {
       // Delete post
       await database.runAsync('DELETE FROM posts WHERE id = ?', [postId]);
 
+      await database.execAsync('COMMIT;');
       return true;
     } catch (error) {
+      await database.execAsync('ROLLBACK;');
       console.error('Error deleting post:', error);
       throw error;
     }

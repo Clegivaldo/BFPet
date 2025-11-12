@@ -3,18 +3,24 @@ import { db } from './sqlite';
 
 export class CommentRepository {
   async addComment(postId: number, userId: number, text: string): Promise<any> {
+    const database = await db.getDbAsync();
+
     try {
-      const database = await db.getDbAsync();
+      await database.execAsync('BEGIN TRANSACTION;');
+
       const result = await database.runAsync(
         'INSERT INTO comments (post_id, user_id, text) VALUES (?, ?, ?)',
         [postId, userId, text]
       );
+
+      await database.execAsync('COMMIT;');
 
       if (result.lastInsertRowId) {
         return this.getCommentById(result.lastInsertRowId);
       }
       return null;
     } catch (error) {
+      await database.execAsync('ROLLBACK;');
       console.error('Error adding comment:', error);
       throw error;
     }

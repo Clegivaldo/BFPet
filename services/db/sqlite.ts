@@ -3,6 +3,43 @@ import { emitDbRecovery } from './dbEvents';
 
 const DATABASE_NAME = 'bfpet.db';
 
+class DatabaseQueue {
+  private queue: Array<{ operation: () => Promise<any>, resolve: (value: any) => void, reject: (error: any) => void }> = [];
+  private isProcessing = false;
+
+  async enqueue<T>(operation: () => Promise<T>): Promise<T> {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ operation, resolve, reject });
+      this.processQueue();
+    });
+  }
+
+  private async processQueue() {
+    if (this.isProcessing || this.queue.length === 0) {
+      return;
+    }
+
+    this.isProcessing = true;
+
+    while (this.queue.length > 0) {
+      const item = this.queue.shift();
+      if (item) {
+        try {
+          const result = await item.operation();
+          item.resolve(result);
+        } catch (error) {
+          console.error('Database operation failed:', error);
+          item.reject(error);
+        }
+      }
+    }
+
+    this.isProcessing = false;
+  }
+}
+
+const dbQueue = new DatabaseQueue();
+
 export class Database {
   private static instance: Database;
   private db: SQLite.SQLiteDatabase | null = null;
@@ -243,41 +280,44 @@ export class Database {
   /**
    * Retorna uma instância válida do database; tenta reabrir se o handle atual
    * estiver inválido (ex.: após closeAsync ou reset externo).
+   * Usa fila para evitar operações concorrentes.
    */
   async getDbAsync(): Promise<SQLite.SQLiteDatabase> {
-    if (!this.db) {
-      // Abrir novamente
-      this.db = await SQLite.openDatabaseAsync(DATABASE_NAME);
-      // Garantir schema mínimo
-      try {
-        await this.createTables();
-      } catch (e) {
-        console.warn('Erro ao recriar tabelas durante getDbAsync:', e);
+    return dbQueue.enqueue(async () => {
+      if (!this.db) {
+        // Abrir novamente
+        this.db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+        // Garantir schema mínimo
+        try {
+          await this.createTables();
+        } catch (e) {
+          console.warn('Erro ao recriar tabelas durante getDbAsync:', e);
+        }
+        return this.db;
       }
-      return this.db;
-    }
 
-    // Testar conexão rapidamente
-    try {
-      // Usar uma query leve para validar o handle
-      // @ts-ignore - método fornecido pelo wrapper expo-sqlite async
-      await this.db.getFirstAsync('SELECT 1 as ok');
-      return this.db;
-    } catch (error) {
-      console.warn('DB handle inválido detectado, reabrindo database:', error);
+      // Testar conexão rapidamente
       try {
-        await this.db.closeAsync();
-      } catch (e) {
-        // ignore
+        // Usar uma query leve para validar o handle
+        // @ts-ignore - método fornecido pelo wrapper expo-sqlite async
+        await this.db.getFirstAsync('SELECT 1 as ok');
+        return this.db;
+      } catch (error) {
+        console.warn('DB handle inválido detectado, reabrindo database:', error);
+        try {
+          await this.db.closeAsync();
+        } catch (e) {
+          // ignore
+        }
+        this.db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+        try {
+          await this.createTables();
+        } catch (e) {
+          console.warn('Erro ao recriar tabelas após reabrir DB:', e);
+        }
+        return this.db;
       }
-      this.db = await SQLite.openDatabaseAsync(DATABASE_NAME);
-      try {
-        await this.createTables();
-      } catch (e) {
-        console.warn('Erro ao recriar tabelas após reabrir DB:', e);
-      }
-      return this.db;
-    }
+    });
   }
 }
 

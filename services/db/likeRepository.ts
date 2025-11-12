@@ -2,8 +2,10 @@ import { db } from './sqlite';
 
 export class LikeRepository {
   async toggleLike(postId: number, userId: number): Promise<boolean> {
+    const database = await db.getDbAsync();
+
     try {
-      const database = await db.getDbAsync();
+      await database.execAsync('BEGIN TRANSACTION;');
 
       const existingLike = await database.getFirstAsync<any>(
         'SELECT id FROM likes WHERE post_id = ? AND user_id = ?',
@@ -16,6 +18,7 @@ export class LikeRepository {
           'DELETE FROM likes WHERE post_id = ? AND user_id = ?',
           [postId, userId]
         );
+        await database.execAsync('COMMIT;');
         return false; // unliked
       } else {
         // Like
@@ -23,9 +26,11 @@ export class LikeRepository {
           'INSERT INTO likes (post_id, user_id) VALUES (?, ?)',
           [postId, userId]
         );
+        await database.execAsync('COMMIT;');
         return true; // liked
       }
     } catch (error) {
+      await database.execAsync('ROLLBACK;');
       console.error('Error toggling like:', error);
       throw error;
     }

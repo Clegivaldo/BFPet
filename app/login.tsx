@@ -22,8 +22,8 @@ export default function LoginScreen() {
   const router = useRouter();
   const { login } = useAuth();
 
-  const [email, setEmail] = useState('teste@bfpet.com');
-  const [password, setPassword] = useState('senha123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -147,13 +147,6 @@ export default function LoginScreen() {
                 <Text style={styles.linkText}>Criar conta</Text>
               </TouchableOpacity>
             </View>
-
-            {/* Teste Info */}
-            <View style={styles.testInfo}>
-              <Text style={styles.testLabel}>📋 Dados de Teste:</Text>
-              <Text style={styles.testValue}>Email: teste@bfpet.com</Text>
-              <Text style={styles.testValue}>Senha: senha123</Text>
-            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -219,22 +212,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: PRIMARY_COLOR,
     fontWeight: '600',
-  },
-  testInfo: {
-    backgroundColor: '#e7f5ff',
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 16,
-  },
-  testLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#1971c2',
-    marginBottom: 6,
-  },
-  testValue: {
-    fontSize: 12,
-    color: '#1971c2',
-    marginBottom: 2,
   },
 });

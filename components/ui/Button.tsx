@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   disabled: {
-    backgroundColor: '#FFC2D9',
+    backgroundColor: '#B8C5D6',
   },
   text: {
     color: '#fff',

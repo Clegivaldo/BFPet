@@ -1,5 +1,5 @@
-import { IComment } from '@/types/comment.types';
 import { PRIMARY_COLOR } from '@/constants/theme';
+import { IComment } from '@/types/comment.types';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import React from 'react';

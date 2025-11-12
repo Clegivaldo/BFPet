@@ -1,5 +1,5 @@
-import { IUser } from '@/types/user.types';
 import { PRIMARY_COLOR } from '@/constants/theme';
+import { IUser } from '@/types/user.types';
 import React, { useState } from 'react';
 import {
     ActivityIndicator,

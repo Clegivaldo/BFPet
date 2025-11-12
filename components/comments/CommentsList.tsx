@@ -1,5 +1,5 @@
-import { IComment } from '@/types/comment.types';
 import { PRIMARY_COLOR } from '@/constants/theme';
+import { IComment } from '@/types/comment.types';
 import React from 'react';
 import {
     ActivityIndicator,

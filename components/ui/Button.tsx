@@ -1,13 +1,13 @@
+import { PRIMARY_COLOR } from '@/constants/theme';
 import React from 'react';
 import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  ViewStyle,
-  TextStyle,
+    ActivityIndicator,
+    StyleSheet,
+    Text,
+    TextStyle,
+    TouchableOpacity,
+    ViewStyle,
 } from 'react-native';
-import { PRIMARY_COLOR } from '@/constants/theme';
 
 interface ButtonProps {
   title: string;

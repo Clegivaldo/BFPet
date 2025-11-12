@@ -1,6 +1,7 @@
 import { CommentForm } from '@/components/comments/CommentForm';
 import { CommentsList } from '@/components/comments/CommentsList';
 import { showToast } from '@/components/ui/Toast';
+import { PRIMARY_COLOR } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { commentService } from '@/services/commentService';
 import { postService } from '@/services/postService';
@@ -219,7 +220,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     fontSize: 14,
-    color: '#FF6B9D',
+    color: PRIMARY_COLOR,
     fontWeight: '600',
   },
   headerTitle: {

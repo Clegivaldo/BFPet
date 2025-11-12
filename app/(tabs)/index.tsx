@@ -1,6 +1,7 @@
 import { PostCard } from '@/components/posts/PostCard';
 import { PostCardSkeleton } from '@/components/posts/PostCardSkeleton';
 import { FadeInCard } from '@/components/ui/FadeInCard';
+import { PRIMARY_COLOR } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { postService } from '@/services/postService';
 import { IPost } from '@/types/post.types';
@@ -175,8 +176,8 @@ export default function FeedScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#FF6B9D"
-            colors={['#FF6B9D']}
+            tintColor={PRIMARY_COLOR}
+            colors={[PRIMARY_COLOR]}
           />
         }
         scrollIndicatorInsets={{ right: 1 }}

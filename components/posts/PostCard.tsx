@@ -1,5 +1,6 @@
 import { ShareButton } from '@/components/share/ShareButton';
 import { ScaleButton } from '@/components/ui/ScaleButton';
+import { PRIMARY_COLOR } from '@/constants/theme';
 import { IPost } from '@/types/post.types';
 import { formatDate, formatPostType, truncateText } from '@/utils/formatters';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -194,7 +195,7 @@ export function PostCard({
           scaleValue={0.93}
         >
           {isLiking ? (
-            <ActivityIndicator size="small" color="#FF6B9D" />
+            <ActivityIndicator size="small" color={PRIMARY_COLOR} />
           ) : (
             <>
               <Text style={styles.actionIcon}>{isLiked ? '❤️' : '🤍'}</Text>
@@ -282,7 +283,7 @@ const styles = StyleSheet.create({
   },
 
   avatarPlaceholder: {
-    backgroundColor: '#FF6B9D',
+    backgroundColor: PRIMARY_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -444,7 +445,7 @@ const styles = StyleSheet.create({
   },
 
   actionTextActive: {
-    color: '#FF6B9D',
+    color: PRIMARY_COLOR,
   },
   ownerActions: {
     flexDirection: 'row',

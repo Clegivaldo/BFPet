@@ -1,4 +1,5 @@
 import { showToast } from '@/components/ui/Toast';
+import { PRIMARY_COLOR } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { useImagePicker } from '@/hooks/useImagePicker';
 import { postService } from '@/services/postService';
@@ -18,7 +19,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const POST_TYPES = [
-  { id: 'adoption', label: '🐾 Adoção', color: '#FF6B9D' },
+  { id: 'adoption', label: '🐾 Adoção', color: PRIMARY_COLOR },
   { id: 'lost', label: '😢 Perdido', color: '#FF8C42' },
   { id: 'found', label: '🔍 Encontrado', color: '#4ECDC4' },
 ];
@@ -89,7 +90,7 @@ export default function CreatePostScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={28} color="#FF6B9D" />
+            <Ionicons name="chevron-back" size={28} color={PRIMARY_COLOR} />
           </TouchableOpacity>
           <Text style={styles.title}>Criar Post</Text>
           <View style={{ width: 28 }} />
@@ -132,13 +133,13 @@ export default function CreatePostScreen() {
                 style={styles.removeButton}
                 onPress={() => setImageUri('')}
               >
-                <Ionicons name="close-circle" size={32} color="#FF6B9D" />
+                <Ionicons name="close-circle" size={32} color={PRIMARY_COLOR} />
               </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.imagePicker}>
               <TouchableOpacity
-                style={[styles.imageButton, { backgroundColor: '#FF6B9D' }]}
+                style={[styles.imageButton, { backgroundColor: PRIMARY_COLOR }]}
                 onPress={takePhotoWithCamera}
               >
                 <Ionicons name="camera" size={24} color="#fff" />
@@ -285,7 +286,7 @@ const styles = StyleSheet.create({
     borderColor: '#e0e0e0',
   },
   typeButtonActive: {
-    borderColor: '#FF6B9D',
+    borderColor: PRIMARY_COLOR,
   },
   typeButtonText: {
     fontSize: 12,
@@ -364,12 +365,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#FF6B9D',
+    borderColor: PRIMARY_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
   },
   cancelText: {
-    color: '#FF6B9D',
+    color: PRIMARY_COLOR,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -377,7 +378,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     borderRadius: 8,
-    backgroundColor: '#FF6B9D',
+    backgroundColor: PRIMARY_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',

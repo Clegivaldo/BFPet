@@ -1,4 +1,5 @@
 import { FadeInCard } from '@/components/ui/FadeInCard';
+import { PRIMARY_COLOR } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { postService } from '@/services/postService';
 import { IPost } from '@/types/post.types';
@@ -118,7 +119,7 @@ export default function ExploreScreen() {
 
           {post.locationName && (
             <View style={styles.locationInfo}>
-              <Ionicons name="location" size={14} color="#FF6B9D" />
+              <Ionicons name="location" size={14} color={PRIMARY_COLOR} />
               <Text style={styles.locationText}>{post.locationName}</Text>
             </View>
           )}
@@ -140,9 +141,9 @@ export default function ExploreScreen() {
             <Ionicons
               name={isLiked ? 'heart' : 'heart-outline'}
               size={20}
-              color={isLiked ? '#FF6B9D' : '#666'}
+              color={isLiked ? PRIMARY_COLOR : '#666'}
             />
-            <Text style={[styles.actionText, isLiked && { color: '#FF6B9D' }]}>
+            <Text style={[styles.actionText, isLiked && { color: PRIMARY_COLOR }]}>
               {isLiked ? 'Curtido' : 'Curtir'}
             </Text>
           </TouchableOpacity>
@@ -171,7 +172,7 @@ export default function ExploreScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#FF6B9D" />
+          <ActivityIndicator size="large" color={PRIMARY_COLOR} />
           <Text style={styles.loadingText}>Carregando posts...</Text>
         </View>
       </SafeAreaView>
@@ -251,7 +252,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FF6B9D',
+    backgroundColor: PRIMARY_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,

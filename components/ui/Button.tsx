@@ -7,6 +7,7 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
+import { PRIMARY_COLOR } from '@/constants/theme';
 
 interface ButtonProps {
   title: string;
@@ -52,7 +53,7 @@ export const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: '#FF6B9D',
+    backgroundColor: PRIMARY_COLOR,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',

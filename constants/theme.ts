@@ -8,6 +8,9 @@ import { Platform } from 'react-native';
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 
+// Cor principal do app - Azul França
+export const PRIMARY_COLOR = '#002654';
+
 export const Colors = {
   light: {
     text: '#11181C',

@@ -1,3 +1,4 @@
+import { PRIMARY_COLOR } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/services/db/sqlite';
 import { useRouter } from 'expo-router';
@@ -204,10 +205,10 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FF6B9D',
+    color: PRIMARY_COLOR,
     marginBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#FF6B9D',
+    borderBottomColor: PRIMARY_COLOR,
     paddingBottom: 8,
   },
   box: {
@@ -216,7 +217,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
     borderLeftWidth: 4,
-    borderLeftColor: '#FF6B9D',
+    borderLeftColor: PRIMARY_COLOR,
   },
   label: {
     fontSize: 12,
@@ -236,7 +237,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonPrimary: {
-    backgroundColor: '#FF6B9D',
+    backgroundColor: PRIMARY_COLOR,
   },
   buttonWarning: {
     backgroundColor: '#ffc107',

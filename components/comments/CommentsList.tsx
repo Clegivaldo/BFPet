@@ -1,4 +1,5 @@
 import { IComment } from '@/types/comment.types';
+import { PRIMARY_COLOR } from '@/constants/theme';
 import React from 'react';
 import {
     ActivityIndicator,
@@ -46,7 +47,7 @@ export const CommentsList: React.FC<CommentsListProps> = ({
   if (isLoading && comments.length === 0) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6B9D" />
+        <ActivityIndicator size="large" color={PRIMARY_COLOR} />
         <Text style={styles.loadingText}>Carregando comentários...</Text>
       </View>
     );
@@ -71,7 +72,7 @@ export const CommentsList: React.FC<CommentsListProps> = ({
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={onRefresh}
-            tintColor="#FF6B9D"
+            tintColor={PRIMARY_COLOR}
           />
         ) : undefined
       }
@@ -79,7 +80,7 @@ export const CommentsList: React.FC<CommentsListProps> = ({
       ListFooterComponent={
         isLoading ? (
           <View style={styles.footerLoading}>
-            <ActivityIndicator size="small" color="#FF6B9D" />
+            <ActivityIndicator size="small" color={PRIMARY_COLOR} />
           </View>
         ) : null
       }

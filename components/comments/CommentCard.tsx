@@ -1,4 +1,5 @@
 import { IComment } from '@/types/comment.types';
+import { PRIMARY_COLOR } from '@/constants/theme';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import React from 'react';
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 0,
     borderRadius: 8,
     borderLeftWidth: 3,
-    borderLeftColor: '#FF6B9D',
+    borderLeftColor: PRIMARY_COLOR,
   },
   content: {
     flex: 1,
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
   avatarPlaceholder: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FF6B9D',
+    color: PRIMARY_COLOR,
   },
   headerInfo: {
     flex: 1,

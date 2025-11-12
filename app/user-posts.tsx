@@ -1,5 +1,6 @@
 import { PostCard } from '@/components/posts/PostCard';
 import { FadeInCard } from '@/components/ui/FadeInCard';
+import { PRIMARY_COLOR } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { profileService } from '@/services/profileService';
 import { IPost } from '@/types/post.types';
@@ -79,13 +80,13 @@ export default function UserPostsScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={28} color="#FF6B9D" />
+            <Ionicons name="chevron-back" size={28} color={PRIMARY_COLOR} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Meus Posts</Text>
           <View style={{ width: 40 }} />
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B9D" />
+          <ActivityIndicator size="large" color={PRIMARY_COLOR} />
           <Text style={styles.loadingText}>Carregando posts...</Text>
         </View>
       </SafeAreaView>
@@ -96,7 +97,7 @@ export default function UserPostsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={28} color="#FF6B9D" />
+          <Ionicons name="chevron-back" size={28} color={PRIMARY_COLOR} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Meus Posts</Text>
         <View style={{ width: 40 }} />
@@ -122,8 +123,8 @@ export default function UserPostsScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#FF6B9D"
-            colors={['#FF6B9D']}
+            tintColor={PRIMARY_COLOR}
+            colors={[PRIMARY_COLOR]}
           />
         }
         scrollIndicatorInsets={{ right: 1 }}

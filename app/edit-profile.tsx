@@ -1,5 +1,6 @@
 import { ScaleButton } from '@/components/ui/ScaleButton';
 import { showToast } from '@/components/ui/Toast';
+import { PRIMARY_COLOR } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { useImagePicker } from '@/hooks/useImagePicker';
 import { profileService } from '@/services/profileService';
@@ -85,7 +86,7 @@ export default function EditProfileScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={28} color="#FF6B9D" />
+            <Ionicons name="chevron-back" size={28} color={PRIMARY_COLOR} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Editar Perfil</Text>
           <View style={{ width: 40 }} />
@@ -116,7 +117,7 @@ export default function EditProfileScreen() {
               <Ionicons
                 name="person-outline"
                 size={20}
-                color="#FF6B9D"
+                color={PRIMARY_COLOR}
                 style={styles.inputIcon}
               />
               <TextInput
@@ -138,7 +139,7 @@ export default function EditProfileScreen() {
               <Ionicons
                 name="document-text-outline"
                 size={20}
-                color="#FF6B9D"
+                color={PRIMARY_COLOR}
                 style={styles.inputIcon}
               />
               <TextInput
@@ -160,7 +161,7 @@ export default function EditProfileScreen() {
             <Text style={styles.label}>Alterar Avatar</Text>
             <View style={styles.avatarButtonsContainer}>
               <TouchableOpacity
-                style={[styles.avatarButton, { backgroundColor: '#FF6B9D' }]}
+                style={[styles.avatarButton, { backgroundColor: PRIMARY_COLOR }]}
                 onPress={takePhotoWithCamera}
                 disabled={imageLoading}
               >
@@ -198,7 +199,7 @@ export default function EditProfileScreen() {
               <Ionicons
                 name="link-outline"
                 size={20}
-                color="#FF6B9D"
+                color={PRIMARY_COLOR}
                 style={styles.inputIcon}
               />
               <TextInput
@@ -213,7 +214,7 @@ export default function EditProfileScreen() {
 
           {/* Dicas */}
           <View style={styles.tipsContainer}>
-            <Ionicons name="information-circle" size={16} color="#FF6B9D" />
+            <Ionicons name="information-circle" size={16} color={PRIMARY_COLOR} />
             <Text style={styles.tipText}>
               Clique em Câmera para tirar uma foto ou use a Galeria para escolher uma imagem. Deixe em branco para usar a inicial do seu nome.
             </Text>
@@ -297,7 +298,7 @@ const styles = StyleSheet.create({
   },
 
   avatarPlaceholder: {
-    backgroundColor: '#FF6B9D',
+    backgroundColor: PRIMARY_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -418,19 +419,19 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#FF6B9D',
+    borderColor: PRIMARY_COLOR,
     alignItems: 'center',
   },
 
   cancelButtonText: {
-    color: '#FF6B9D',
+    color: PRIMARY_COLOR,
     fontSize: 14,
     fontWeight: '600',
   },
 
   saveButton: {
     flex: 1,
-    backgroundColor: '#FF6B9D',
+    backgroundColor: PRIMARY_COLOR,
     paddingVertical: 12,
     borderRadius: 8,
     flexDirection: 'row',

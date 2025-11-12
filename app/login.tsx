@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/Button';
 import { TextInput } from '@/components/ui/TextInput';
 import { showToast } from '@/components/ui/Toast';
+import { PRIMARY_COLOR } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { loginSchema } from '@/utils/validators';
 import { useRouter } from 'expo-router';
@@ -189,7 +190,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#FF6B9D',
+    color: PRIMARY_COLOR,
     marginBottom: 12,
   },
   description: {
@@ -216,7 +217,7 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontSize: 14,
-    color: '#FF6B9D',
+    color: PRIMARY_COLOR,
     fontWeight: '600',
   },
   testInfo: {

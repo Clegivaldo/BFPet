@@ -1,5 +1,6 @@
 import { FadeInCard } from '@/components/ui/FadeInCard';
 import { ScaleButton } from '@/components/ui/ScaleButton';
+import { PRIMARY_COLOR } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { profileService } from '@/services/profileService';
 import { IUser } from '@/types/user.types';
@@ -70,7 +71,7 @@ export default function ProfileScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B9D" />
+          <ActivityIndicator size="large" color={PRIMARY_COLOR} />
           <Text style={styles.loadingText}>Carregando perfil...</Text>
         </View>
       </SafeAreaView>
@@ -81,7 +82,7 @@ export default function ProfileScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle" size={48} color="#FF6B9D" />
+          <Ionicons name="alert-circle" size={48} color={PRIMARY_COLOR} />
           <Text style={styles.errorText}>Erro ao carregar perfil</Text>
           <ScaleButton
             style={styles.retryButton}
@@ -105,7 +106,7 @@ export default function ProfileScreen() {
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Meu Perfil</Text>
           <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <Ionicons name="log-out-outline" size={24} color="#FF6B9D" />
+            <Ionicons name="log-out-outline" size={24} color={PRIMARY_COLOR} />
           </TouchableOpacity>
         </View>
 
@@ -178,7 +179,7 @@ export default function ProfileScreen() {
               onPress={handleViewPosts}
               scaleValue={0.95}
             >
-              <Ionicons name="document-text" size={20} color="#FF6B9D" />
+              <Ionicons name="document-text" size={20} color={PRIMARY_COLOR} />
               <Text style={styles.actionButtonTextSecondary}>Meus Posts</Text>
             </ScaleButton>
           </View>
@@ -190,7 +191,7 @@ export default function ProfileScreen() {
             <Text style={styles.infoTitle}>Informações da Conta</Text>
             
             <View style={styles.infoItem}>
-              <Ionicons name="calendar-outline" size={20} color="#FF6B9D" />
+              <Ionicons name="calendar-outline" size={20} color={PRIMARY_COLOR} />
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>Membro desde</Text>
                 <Text style={styles.infoValue}>
@@ -200,7 +201,7 @@ export default function ProfileScreen() {
             </View>
 
             <View style={styles.infoItem}>
-              <Ionicons name="mail-outline" size={20} color="#FF6B9D" />
+              <Ionicons name="mail-outline" size={20} color={PRIMARY_COLOR} />
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>Email</Text>
                 <Text style={styles.infoValue}>{user.email}</Text>
@@ -271,7 +272,7 @@ const styles = StyleSheet.create({
   },
 
   retryButton: {
-    backgroundColor: '#FF6B9D',
+    backgroundColor: PRIMARY_COLOR,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -300,7 +301,7 @@ const styles = StyleSheet.create({
   },
 
   avatarPlaceholder: {
-    backgroundColor: '#FF6B9D',
+    backgroundColor: PRIMARY_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -356,7 +357,7 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#FF6B9D',
+    color: PRIMARY_COLOR,
     marginBottom: 4,
   },
 
@@ -378,7 +379,7 @@ const styles = StyleSheet.create({
   },
 
   actionButton: {
-    backgroundColor: '#FF6B9D',
+    backgroundColor: PRIMARY_COLOR,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -396,11 +397,11 @@ const styles = StyleSheet.create({
   actionButtonSecondary: {
     backgroundColor: 'transparent',
     borderWidth: 2,
-    borderColor: '#FF6B9D',
+    borderColor: PRIMARY_COLOR,
   },
 
   actionButtonTextSecondary: {
-    color: '#FF6B9D',
+    color: PRIMARY_COLOR,
     fontSize: 14,
     fontWeight: '600',
   },
